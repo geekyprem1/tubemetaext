@@ -2,11 +2,11 @@
 
 **Artifact:** `release/tubemeta-ai-v0.1.2.zip`  
 **Version:** 0.1.2  
-**Size:** 211,701 bytes · 19 entries (popup redesign with bundled Manrope/IBM Plex Mono fonts, Tilted Card icons, SPA + Shorts reader fixes)  
-**SHA-256:** `b5a6227f6b490d2fa0074a2d063b39419a9f0c47fde2870083e64d1fafe250a9` (recorded in `release/tubemeta-ai-v0.1.2.zip.sha256`)  
+**Size:** 211,828 bytes · 19 entries (popup redesign with bundled Manrope/IBM Plex Mono fonts, CWS-compliant Tilted Card icons, SPA + Shorts reader fixes)  
+**SHA-256:** `ab2f56dc71deb752c4494064383ddaaa118434ed0f0b588ee549adbbfe44f9c6` (recorded in `release/tubemeta-ai-v0.1.2.zip.sha256`)  
 **Built:** 2026-10-06 via `npm run package` (build + `scripts/package.mjs`, reproducible: the script rebuilds `dist/` and re-zips it; the checksum changes only when sources, fonts, or icons change).
 
-**Revision history:** `0.1.0` shipped the copy-feedback visibility fix; `0.1.1` (sha256 `fcb51873…`) added the SPA-navigation reader fix for watch pages; `0.1.2` supersedes both with the Shorts-player fix (below) and includes the popup redesign. Earlier archives are kept for history.
+**Revision history:** `0.1.0` shipped the copy-feedback visibility fix; `0.1.1` added the SPA-navigation reader fix for watch pages; `0.1.2` supersedes both with the Shorts-player fix (below) and includes the popup redesign. The current `0.1.2` archive was rebuilt during the Chrome Web Store image-compliance pass (store icon now 96×96 artwork + 16 px transparent padding per the official docs; required 440×280 promo tile added). Earlier archives are kept for history.
 
 ## Archive contents (archive root is the extension root)
 

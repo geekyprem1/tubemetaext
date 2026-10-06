@@ -157,13 +157,28 @@ function Save-Resized($master, [int]$size, [string]$path) {
   Write-Output "wrote $path"
 }
 
+function Save-Inset($master, [int]$size, [int]$inset, [string]$path) {
+  # Chrome Web Store store-icon convention: 96x96 artwork inside a 128x128
+  # image with 16 px of transparent padding on each side.
+  $bmp = New-Object System.Drawing.Bitmap($size, $size)
+  $g = [System.Drawing.Graphics]::FromImage($bmp)
+  $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+  $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+  $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+  $g.DrawImage($master, $inset, $inset, ($size - 2 * $inset), ($size - 2 * $inset))
+  $g.Dispose()
+  $bmp.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
+  $bmp.Dispose()
+  Write-Output "wrote $path (artwork $($size - 2 * $inset) + $inset px transparent padding per side)"
+}
+
 $detailed = New-IconMaster 0
 $bold = New-IconMaster 1
 
 Save-Resized $bold 16 (Join-Path $outDir 'icon16.png')
 Save-Resized $bold 32 (Join-Path $outDir 'icon32.png')
 Save-Resized $detailed 48 (Join-Path $outDir 'icon48.png')
-Save-Resized $detailed 128 (Join-Path $outDir 'icon128.png')
+Save-Inset $detailed 128 16 (Join-Path $outDir 'icon128.png')
 
 $detailed.Dispose()
 $bold.Dispose()
