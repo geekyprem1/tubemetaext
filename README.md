@@ -1,8 +1,8 @@
 # TubeMeta AI
 
-Chrome Manifest V3 extension that extracts the current supported YouTube video's public metadata, lets you edit title/description/tags/hashtags, and copies individual fields or the full record. Local-only: no backend, no analytics, no remote code.
+Chrome Manifest V3 extension that extracts the current supported YouTube video's public metadata, lets you edit title/description/tags/hashtags, and copies individual fields or the full record. It can also display and copy an available caption transcript on request. No backend, analytics, or remote code.
 
-This repository is currently at the **production scaffold** stage (see `TASKS.md`, T006+). The extraction/edit/copy workflows are not implemented yet; the `phase0-prototype/` folder holds the disposable feasibility prototype that validated the extraction sources — see `docs/feasibility.md`.
+The `phase0-prototype/` folder holds the disposable feasibility prototype that validated the original metadata extraction sources — see `docs/feasibility.md`.
 
 ## Prerequisites
 

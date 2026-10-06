@@ -2,7 +2,7 @@ const manifest = {
   manifest_version: 3,
   name: 'TubeMeta AI',
   version: '0.1.2',
-  description: 'Extract, edit, and copy metadata from the current YouTube video. Local-only; no data leaves the browser.',
+  description: 'Extract and copy YouTube metadata and available transcripts. Edit fields locally, with no account or separate server.',
   minimum_chrome_version: '102',
   permissions: ['activeTab', 'scripting', 'storage', 'clipboardWrite'],
   background: {

@@ -7,14 +7,26 @@ function fieldText(field: Field<string>): string | null {
   return isAvailable(field) && field.value.length > 0 ? field.value : null;
 }
 
+function displayDate(value: string | null, withTime = false): string | null {
+  if (value === null) return null;
+  const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00` : value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    ...(withTime ? { hour: 'numeric', minute: '2-digit' } : {}),
+  }).format(date);
+}
+
 export function Details({ snapshot }: { snapshot: MetadataSnapshot }) {
-  const rows: Array<{ label: string; value: string | null; link?: boolean }> = [
+  const rows: Array<{ label: string; value: string | null; linkLabel?: string }> = [
     { label: 'Video ID', value: snapshot.videoId },
-    { label: 'Video URL', value: snapshot.videoUrl, link: true },
+    { label: 'Video URL', value: snapshot.videoUrl, linkLabel: 'Open video' },
     { label: 'Channel name', value: fieldText(snapshot.channelName) },
-    { label: 'Channel URL', value: fieldText(snapshot.channelUrl), link: true },
-    { label: 'Thumbnail URL', value: fieldText(snapshot.thumbnailUrl), link: true },
-    { label: 'Publish date', value: fieldText(snapshot.publishDate) },
+    { label: 'Channel URL', value: fieldText(snapshot.channelUrl), linkLabel: 'Open channel' },
+    { label: 'Thumbnail URL', value: fieldText(snapshot.thumbnailUrl), linkLabel: 'Open thumbnail' },
+    { label: 'Publish date', value: displayDate(fieldText(snapshot.publishDate)) },
     {
       label: 'Duration',
       value: isAvailable(snapshot.durationSeconds)
@@ -33,12 +45,15 @@ export function Details({ snapshot }: { snapshot: MetadataSnapshot }) {
           : CONTENT_TYPE_LABELS[snapshot.contentType],
     },
     { label: 'Playback', value: PLAYBACK_LABELS[snapshot.playbackStatus] },
-    { label: 'Extracted at', value: snapshot.extractedAt },
+    { label: 'Extracted at', value: displayDate(snapshot.extractedAt, true) },
   ];
 
   return (
-    <section className="details" aria-label="Details">
-      <h2>Details</h2>
+    <details className="details">
+      <summary>
+        <span>More video details</span>
+        <span className="details-chevron" aria-hidden="true">⌄</span>
+      </summary>
       <dl>
         {rows.map((row) => (
           <div className="details-row" key={row.label}>
@@ -46,9 +61,9 @@ export function Details({ snapshot }: { snapshot: MetadataSnapshot }) {
             <dd>
               {row.value === null ? (
                 <span className="muted">Not available</span>
-              ) : row.link ? (
-                <a href={row.value} target="_blank" rel="noreferrer">
-                  {row.value}
+              ) : row.linkLabel ? (
+                <a href={row.value} target="_blank" rel="noreferrer" title={row.value}>
+                  {row.linkLabel} <span aria-hidden="true">↗</span>
                 </a>
               ) : (
                 row.value
@@ -57,6 +72,6 @@ export function Details({ snapshot }: { snapshot: MetadataSnapshot }) {
           </div>
         ))}
       </dl>
-    </section>
+    </details>
   );
 }
