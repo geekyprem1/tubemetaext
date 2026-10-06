@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "TubeMeta AI — Phase 0 Prototype",
+  "version": "0.0.1",
+  "description": "Local feasibility prototype for reading the current YouTube video after the user opens the extension.",
+  "minimum_chrome_version": "102",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "clipboardWrite"
+  ],
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "action": {
+    "default_title": "TubeMeta AI prototype",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Ctrl+Shift+Y" },
+      "description": "Open the prototype popup"
+    }
+  }
+}

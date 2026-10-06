@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TubeMeta AI prototype</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>TubeMeta AI</h1>
+          <p>Phase 0 extraction prototype</p>
+        </div>
+        <button id="refresh" type="button" title="Re-extract current video" aria-label="Refresh">↻</button>
+      </header>
+
+      <div id="status" role="status" aria-live="polite">Checking this tab…</div>
+      <section id="summary" hidden>
+        <strong id="title-preview"></strong>
+        <span id="video-kind"></span>
+        <span id="source-id"></span>
+      </section>
+
+      <div id="fields" hidden></div>
+      <button id="copy-all" type="button" disabled>Copy available metadata</button>
+      <p class="note">Local feasibility build. No metadata is uploaded.</p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
