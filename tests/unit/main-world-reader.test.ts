@@ -11,8 +11,19 @@ interface ReaderResult {
 
 interface ReaderHarness {
   playerResponse?: unknown;
+  shortsResponse?: unknown;
+  ytdPlayerApis?: unknown[];
   playerMissing?: boolean;
   playerThrows?: boolean;
+}
+
+function makePlayerElement(response: unknown, throws = false) {
+  return {
+    getPlayerResponse: () => {
+      if (throws) throw new Error('player not ready');
+      return response;
+    },
+  };
 }
 
 function runSerialized(
@@ -22,13 +33,21 @@ function runSerialized(
 ): ReaderResult {
   const documentMock = {
     getElementById: (id: string) => {
-      if (id !== 'movie_player' || harness.playerMissing) return null;
-      return {
-        getPlayerResponse: () => {
-          if (harness.playerThrows) throw new Error('player not ready');
-          return harness.playerResponse;
-        },
-      };
+      if (harness.playerMissing) return null;
+      if (id === 'movie_player') return makePlayerElement(harness.playerResponse, harness.playerThrows);
+      if (id === 'shorts-player') {
+        return 'shortsResponse' in harness ? makePlayerElement(harness.shortsResponse) : null;
+      }
+      return null;
+    },
+    querySelectorAll: (selector: string) => {
+      if (harness.playerMissing) return [];
+      if (selector === 'ytd-player' && harness.ytdPlayerApis) {
+        return harness.ytdPlayerApis.map((response) => ({
+          getPlayer: () => ({ getPlayerResponse: () => response }),
+        }));
+      }
+      return [];
     },
   };
   const context = vm.createContext({
@@ -127,6 +146,56 @@ describe('readCurrentPlayerResponse (serialized like chrome.scripting.executeScr
 
   it('falls back to the initial page response when the player query throws during a transition', () => {
     const result = runSerialized(makeFixture(), videoId, { playerThrows: true });
+    expect(result.ok).toBe(true);
+    expect(result.videoId).toBe(videoId);
+  });
+
+  it('reads the shorts player when the movie player returns null (Shorts SPA navigation)', () => {
+    const staleInitial = makeFixture();
+    staleInitial.videoDetails.videoId = 'StaleStale1';
+    staleInitial.videoDetails.title = 'Previous short from an earlier page load';
+
+    const shortsFixture = makeFixture();
+    shortsFixture.videoDetails.videoId = 'ShortShort1';
+    shortsFixture.videoDetails.title = 'The current Short';
+
+    const result = runSerialized(staleInitial, 'ShortShort1', {
+      playerResponse: null,
+      shortsResponse: shortsFixture,
+    });
+    expect(result.ok).toBe(true);
+    expect(result.videoId).toBe('ShortShort1');
+    expect(result.title).toBe('The current Short');
+  });
+
+  it('skips a stale movie player and still accepts the matching shorts player', () => {
+    const staleInitial = makeFixture();
+    staleInitial.videoDetails.videoId = 'StaleStale1';
+
+    const staleMovie = makeFixture();
+    staleMovie.videoDetails.videoId = 'StaleOld01';
+
+    const shortsFixture = makeFixture();
+    shortsFixture.videoDetails.videoId = 'ShortShort1';
+
+    const result = runSerialized(staleInitial, 'ShortShort1', {
+      playerResponse: staleMovie,
+      shortsResponse: shortsFixture,
+    });
+    expect(result.ok).toBe(true);
+    expect(result.videoId).toBe('ShortShort1');
+  });
+
+  it('reads through ytd-player.getPlayer() when direct methods return nothing', () => {
+    const staleInitial = makeFixture();
+    staleInitial.videoDetails.videoId = 'StaleStale1';
+
+    const liveFixture = makeFixture();
+
+    const result = runSerialized(staleInitial, videoId, {
+      playerResponse: undefined,
+      ytdPlayerApis: [liveFixture],
+    });
     expect(result.ok).toBe(true);
     expect(result.videoId).toBe(videoId);
   });

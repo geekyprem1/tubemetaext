@@ -134,7 +134,7 @@ function checkMainWorldReader(workerSource) {
 
   const context = vm.createContext({
     window: { ytInitialPlayerResponse: fixture },
-    document: { getElementById: () => null },
+    document: { getElementById: () => null, querySelectorAll: () => [] },
     URL,
     Date,
     Number,
@@ -162,6 +162,7 @@ function checkMainWorldReader(workerSource) {
     document: {
       getElementById: (id) =>
         id === 'movie_player' ? { getPlayerResponse: () => fixture } : null,
+      querySelectorAll: () => [],
     },
     URL,
     Date,
@@ -175,6 +176,30 @@ function checkMainWorldReader(workerSource) {
   const spaResult = spaReader('dQw4w9WgXcQ');
   if (!spaResult || spaResult.ok !== true || spaResult.title !== 'Verify build fixture') {
     fail('bundled reader must prefer the live player response over a stale initial response (SPA navigation)');
+  }
+
+  const shortsContext = vm.createContext({
+    window: { ytInitialPlayerResponse: { videoDetails: { videoId: 'StaleStale1', title: 'stale page-load response' } } },
+    document: {
+      getElementById: (id) => {
+        if (id === 'movie_player') return { getPlayerResponse: () => null };
+        if (id === 'shorts-player') return { getPlayerResponse: () => fixture };
+        return null;
+      },
+      querySelectorAll: () => [],
+    },
+    URL,
+    Date,
+    Number,
+    Set,
+    Map,
+    Promise,
+    console,
+  });
+  const shortsReader = vm.runInContext(`(${functionSource})`, shortsContext);
+  const shortsResult = shortsReader('dQw4w9WgXcQ');
+  if (!shortsResult || shortsResult.ok !== true || shortsResult.title !== 'Verify build fixture') {
+    fail('bundled reader must read the shorts player when the movie player returns null (Shorts navigation)');
   }
 
   return { stringsValidated: true };

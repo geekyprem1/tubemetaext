@@ -69,21 +69,41 @@ export function readCurrentPlayerResponse(expectedVideoId: string): PlayerReader
     return date.toISOString().slice(0, 10) === datePart ? datePart : null;
   }
 
-  function readLivePlayerResponse(): PlayerResponseShape | undefined {
-    const player = document.getElementById('movie_player') as
-      | (HTMLElement & { getPlayerResponse?: () => unknown })
-      | null;
-    if (!player || typeof player.getPlayerResponse !== 'function') return undefined;
+  function readResponseFromPlayerElement(element: Element | null): PlayerResponseShape | undefined {
+    if (!element) return undefined;
+    const player = element as HTMLElement & {
+      getPlayerResponse?: () => unknown;
+      getPlayer?: () => { getPlayerResponse?: () => unknown } | undefined;
+    };
     try {
-      const response = player.getPlayerResponse();
-      return response && typeof response === 'object' ? (response as PlayerResponseShape) : undefined;
+      if (typeof player.getPlayerResponse === 'function') {
+        const response = player.getPlayerResponse();
+        if (response && typeof response === 'object') return response as PlayerResponseShape;
+      }
+    } catch {
+      // fall through to the player API
+    }
+    try {
+      if (typeof player.getPlayer === 'function') {
+        const api = player.getPlayer();
+        if (api && typeof api.getPlayerResponse === 'function') {
+          const response = api.getPlayerResponse();
+          if (response && typeof response === 'object') return response as PlayerResponseShape;
+        }
+      }
     } catch {
       return undefined;
     }
+    return undefined;
   }
 
+  const playerElements: Array<Element | null> = [
+    document.getElementById('movie_player'),
+    document.getElementById('shorts-player'),
+    ...Array.from(document.querySelectorAll('ytd-player')),
+  ];
   const candidates: Array<PlayerResponseShape | undefined> = [
-    readLivePlayerResponse(),
+    ...playerElements.map((element) => readResponseFromPlayerElement(element)),
     (window as unknown as { ytInitialPlayerResponse?: PlayerResponseShape }).ytInitialPlayerResponse,
   ];
   let response: PlayerResponseShape | undefined;
