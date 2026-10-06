@@ -134,6 +134,7 @@ function checkMainWorldReader(workerSource) {
 
   const context = vm.createContext({
     window: { ytInitialPlayerResponse: fixture },
+    document: { getElementById: () => null },
     URL,
     Date,
     Number,
@@ -154,6 +155,26 @@ function checkMainWorldReader(workerSource) {
   }
   if (result.title !== 'Verify build fixture' || result.keywordsPresent !== true) {
     fail('bundled reader field extraction failed');
+  }
+
+  const spaContext = vm.createContext({
+    window: { ytInitialPlayerResponse: { videoDetails: { videoId: 'StaleStale1', title: 'stale page-load response' } } },
+    document: {
+      getElementById: (id) =>
+        id === 'movie_player' ? { getPlayerResponse: () => fixture } : null,
+    },
+    URL,
+    Date,
+    Number,
+    Set,
+    Map,
+    Promise,
+    console,
+  });
+  const spaReader = vm.runInContext(`(${functionSource})`, spaContext);
+  const spaResult = spaReader('dQw4w9WgXcQ');
+  if (!spaResult || spaResult.ok !== true || spaResult.title !== 'Verify build fixture') {
+    fail('bundled reader must prefer the live player response over a stale initial response (SPA navigation)');
   }
 
   return { stringsValidated: true };

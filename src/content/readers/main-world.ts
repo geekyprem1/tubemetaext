@@ -69,10 +69,33 @@ export function readCurrentPlayerResponse(expectedVideoId: string): PlayerReader
     return date.toISOString().slice(0, 10) === datePart ? datePart : null;
   }
 
-  const response = (window as unknown as { ytInitialPlayerResponse?: PlayerResponseShape })
-    .ytInitialPlayerResponse;
+  function readLivePlayerResponse(): PlayerResponseShape | undefined {
+    const player = document.getElementById('movie_player') as
+      | (HTMLElement & { getPlayerResponse?: () => unknown })
+      | null;
+    if (!player || typeof player.getPlayerResponse !== 'function') return undefined;
+    try {
+      const response = player.getPlayerResponse();
+      return response && typeof response === 'object' ? (response as PlayerResponseShape) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  const candidates: Array<PlayerResponseShape | undefined> = [
+    readLivePlayerResponse(),
+    (window as unknown as { ytInitialPlayerResponse?: PlayerResponseShape }).ytInitialPlayerResponse,
+  ];
+  let response: PlayerResponseShape | undefined;
+  for (const candidate of candidates) {
+    if (candidate?.videoDetails?.videoId === expectedVideoId) {
+      response = candidate;
+      break;
+    }
+  }
   const details = response?.videoDetails;
-  if (!details || details.videoId !== expectedVideoId) {
+  const matchedVideoId = details?.videoId;
+  if (!response || !details || typeof matchedVideoId !== 'string') {
     return { ok: false, reason: 'PLAYER_ID_MISMATCH' };
   }
 
@@ -84,7 +107,7 @@ export function readCurrentPlayerResponse(expectedVideoId: string): PlayerReader
 
   return {
     ok: true,
-    videoId: details.videoId,
+    videoId: matchedVideoId,
     title: typeof details.title === 'string' ? details.title : null,
     description: typeof details.shortDescription === 'string' ? details.shortDescription : null,
     keywords: keywordsPresent ? (details.keywords as string[]) : null,
