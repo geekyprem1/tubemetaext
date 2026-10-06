@@ -6,13 +6,47 @@ Package-ready copy for the Chrome Web Store listing. It describes extraction, ed
 
 **TubeMeta AI**
 
-## Short description (132 character limit)
+## Summary (from the package manifest)
 
-> Extract YouTube metadata, view available transcripts, and copy either in one click.
+> Extract and copy YouTube metadata and available transcripts. Edit fields locally, with no account or separate server.
 
-(Under 132 characters.)
+The store shows this "Summary from package" automatically from the manifest `description` (`src/manifest.ts`); the earlier hand-written short description was retired when the transcript feature landed.
 
-## Detailed description
+## Detailed description (store form text)
+
+```text
+Extract, edit, and copy YouTube metadata — instantly and privately, in one click.
+
+Open any YouTube video or Short, click TubeMeta AI, and see everything the page makes publicly available:
+
+• Title, description, and hashtags
+• Publicly visible tags, when the video exposes them
+• Channel name, video URL, and thumbnail
+• Duration, views, and publish date, when available
+• Video type: video or Short
+
+EDIT BEFORE YOU COPY
+Every field can be edited right in the popup. Edits are kept as drafts per video for your browsing session, with live character and item counts and a one-click reset back to the original.
+
+COPY THE WAY YOU WANT
+Copy a single field — or copy everything in one clean, consistent export that's ready to paste anywhere.
+
+TRANSCRIPTS WHEN YOU NEED THE WORDS
+View the caption track of the current video and copy the full transcript in one click. Videos without captions can't provide a transcript.
+
+LOCAL-ONLY BY DESIGN
+• No account, no sign-in, no TubeMeta server
+• Nothing you extract is uploaded — metadata, edits, and copies stay on your device
+• No analytics, no tracking, no ads
+• The extension can only read a page when you invoke it on the active tab
+
+BUILT TO BE HONEST
+• Some fields may be unavailable depending on the video or page state. Unavailable fields are labeled — never invented.
+• Tags appear only when YouTube exposes them publicly for the video.
+• No AI generation in this release: "AI" is the roadmap, not today's feature. This version is a fast, local metadata toolkit.
+
+TubeMeta AI is an independent tool and is not affiliated with or endorsed by YouTube or Google. YouTube is a trademark of Google LLC.
+```
 
 > **TubeMeta AI helps YouTube creators instantly extract and reuse video metadata — entirely inside the browser.**
 >
